@@ -1,0 +1,10 @@
+# depslib dependency file v1.0
+1741623007 source:c:\users\lotba\onedrive\desktop\c++\cpc\usine pharmaceutique\main.cpp
+	"header.h"
+	<vector>
+
+1741786161 c:\users\lotba\onedrive\desktop\c++\cpc\usine pharmaceutique\header.h
+	<iostream>
+	<vector>
+	<typeinfo>
+
