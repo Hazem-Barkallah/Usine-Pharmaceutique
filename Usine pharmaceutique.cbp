@@ -32,6 +32,12 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="Azizcpp.cpp" />
+		<Unit filename="Commande.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="headers.h" />
+		<Unit filename="headersAziz.h" />
 		<Unit filename="main.cpp" />
 		<Extensions />
 	</Project>

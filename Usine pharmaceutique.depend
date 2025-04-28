@@ -8,3 +8,41 @@
 	<vector>
 	<typeinfo>
 
+1745835760 source:c:\users\lotba\onedrive\desktop\c++\usine pharmaceutique\main.cpp
+	"headers.h"
+	<vector>
+
+1745509631 c:\users\lotba\onedrive\desktop\c++\usine pharmaceutique\header.h
+	<iostream>
+	<vector>
+	"Aziz.h"
+	<typeinfo>
+
+1745507088 c:\users\lotba\onedrive\desktop\c++\usine pharmaceutique\aziz.h
+	<iostream>
+	<vector>
+	<string>
+
+1745835615 c:\users\lotba\onedrive\desktop\c++\usine pharmaceutique\headers.h
+	<string>
+	<fstream>
+	<istream>
+	<iostream>
+	<vector>
+	"headersAziz.h"
+	<typeinfo>
+
+1745510037 c:\users\lotba\onedrive\desktop\c++\usine pharmaceutique\headersaziz.h
+	<iostream>
+	<vector>
+	<string>
+
+1745510997 source:c:\users\lotba\onedrive\desktop\c++\usine pharmaceutique\azizcpp.cpp
+	<iostream>
+	<vector>
+	<string>
+	<fstream>
+	<istream>
+	<typeinfo>
+	"headersAziz.h"
+

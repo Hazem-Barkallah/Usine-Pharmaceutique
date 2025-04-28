@@ -1,19 +1,22 @@
 #ifndef HEADER_H_INCLUDED
 #define HEADER_H_INCLUDED
+#include <string>
+#include <fstream>
+#include <istream>
 #include <iostream>
 #include<vector>
-#include"Aziz.h"
+#include"headersAziz.h"
 #include <typeinfo>
 using namespace std;
 class Medicament {
     int idMedicament;
     string nomMedicament;
-    float prix;
+    int prix;
     int stock;
     string dateExpiration;
     vector<Pharmacien*> pharmaciens;
 public:
-    Medicament(int id, string nom, float prix, int stock, string dateExp){
+    Medicament(int id=0, string nom="", float prix=0, int stock=0, string dateExp="01/01/2000"){
         idMedicament=id;
         nomMedicament=nom;
         prix=prix;
@@ -47,7 +50,7 @@ public:
     }
     return *this;
 }
-    friend ostream& operator<<(ostream& os, const Medicament& m) {
+    /*friend ostream& operator<<(ostream& os, const Medicament& m) {
     os<< "ID: " << m.idMedicament <<endl;
     os<< "Nom: " << m.nomMedicament << endl;
     os<< "Prix: " << m.prix <<endl;
@@ -58,8 +61,17 @@ public:
         os<<"-Pharmacien(ne) "<< *m.pharmaciens[i] << endl;
     }
     return os;
+}*/
+friend ostream& operator<<(ostream& os, const Medicament& med) {
+    os << med.idMedicament << " "
+       << med.nomMedicament << " "
+       << med.prix << " "
+       << med.stock << " "
+       << med.dateExpiration << " ";
+    return os;
 }
-    friend istream& operator>>(istream& is, Medicament& m) {
+
+    /*friend istream& operator>>(istream& is, Medicament& m) {
     cout<< "Entrer l'ID: ";
     is>> m.idMedicament;
     cout<< "Entrer le nom: ";
@@ -79,8 +91,71 @@ public:
         m.pharmaciens.push_back(phar);
     }
     return is;
+}*/
+// À mettre dans Medicament
+friend istream& operator>>(istream& is, Medicament& med) {
+    cout<<"Entrer l'ID du medicament: ";
+    is >> med.idMedicament;
+    cout<<"Entrer le nom du medicament: ";
+    is >> med.nomMedicament;
+    cout<<"Entrer le prix du medicament: ";
+    is >> med.prix;
+    cout<<"Entrer le stock du medicament: ";
+    is>> med.stock;
+    cout<<"Entrer la date d'expiration du medicament: ";
+    is>> med.dateExpiration;
+    return is;
 }
+friend istream& operator>>(istream& is, Medicament* med) {
+    is >> med->idMedicament
+       >> med->nomMedicament
+       >> med->prix
+       >> med->stock
+       >> med->dateExpiration;
+    if (med->idMedicament<=0 || med->prix <= 0 || med->nomMedicament.empty()) {
+        cout << "" << endl;
+        return is;}
+    cout << "ID: " << med->idMedicament << endl;
+    cout << "Nom: " << med->nomMedicament << endl;
+    cout << "Prix: " << med->prix << endl;
+    cout << "Stock: " << med->stock << endl;
+    cout << "Date Expiration: " << med->dateExpiration << endl;
+    return is;
+}
+friend ostream& operator<<(ostream& os, Medicament* m) {
+    os << m->getIdMedicament() << " "
+       << m->getNomMedicament() << " "
+       << m->getPrixMedicament() << " "
+       << m->getStockMedicament() << " "
+       << m->getDateExpiration() << " ";
+    return os;
+}
+void creer(fstream &f){
+    f.open("Medicament.txt", ios ::in | ios ::out |ios ::trunc) ;
+    if( ! f.is_open()) {exit(-1);}}
 
+void enregistrer_fichier() {
+    fstream f("Medicament.txt", ios::out | ios::app);
+    if (!f.is_open()) {
+        cout << "\nErreur fichier Commande ";
+        return;
+    }
+    f << this;
+    f.close();
+}
+void lire_fichier() {
+    fstream fi("Medicament.txt", ios::in);
+    if (!fi.is_open()) {
+        cout << "\nErreur fichier Commande";
+        return;
+    }
+    while (!fi.eof()) {
+        Medicament* med = new Medicament();
+        fi >> med;
+        delete med;
+    }
+    fi.close();
+};
     int rechercher(string nomEmployee) {
         for (size_t i = 0; i < pharmaciens.size(); ++i) {
             if (pharmaciens[i]->getNom() == nomEmployee) {
@@ -307,13 +382,85 @@ public:
     Vitamine(int id, string nom, float p, int s, string date)
     : Medicament(id, nom, p, s, date) {}
 
+    // --- Lecture/Ecriture brut sans affichage
+friend ostream& operator<<(ostream& os, const Vitamine& vit) {
+    os << static_cast<const Medicament&>(vit) << " "; // Appeler opérateur<< de Medicament
+    os << vit.typesSupplementaires.size() << " ";
+    for (unsigned int i = 0; i < vit.typesSupplementaires.size(); ++i) {
+        os << *vit.typesSupplementaires[i] << " ";
+    }
+    return os;
+}
+
+friend istream& operator>>(istream& is, Vitamine& vit) {
+    is >> static_cast<Medicament&>(vit); // Lire partie Medicament
+
+    int nbTypes;
+    is >> nbTypes;
+    vit.typesSupplementaires.clear();
+
+    for (int i = 0; i < nbTypes; ++i) {
+        string* type = new string;
+        is >> *type;
+        vit.typesSupplementaires.push_back(type);
+    }
+    return is;
+}
+
+// --- Lecture avec affichage pour l'exécution
+friend istream& operator>>(istream& is, Vitamine* vit) {
+    is >> static_cast<Medicament&>(*vit);
+
+    int nbTypes;
+    is >> nbTypes;
+    vit->typesSupplementaires.clear();
+
+    cout << "\nLecture Vitamine :" << endl;
+    cout << "ID: " << vit->getIdMedicament() << endl;
+    cout << "Nom: " << vit->getNomMedicament() << endl;
+    cout << "Prix: " << vit->getPrixMedicament() << endl;
+    cout << "Stock: " << vit->getStockMedicament() << endl;
+    cout << "Date Expiration: " << vit->getDateExpiration() << endl;
+    cout << "Nombre de types supplementaires: " << nbTypes << endl;
+
+    for (int i = 0; i < nbTypes; i++) {
+        string* type = new string;
+        is >> *type;
+        cout << "- " << *type << endl;
+        vit->typesSupplementaires.push_back(type);
+    }
+    return is;
+}
+friend ostream& operator<<(ostream& os, const Vitamine* v) {
+    os << static_cast<const Medicament&>(*v) << " ";
+    os << v->typesSupplementaires.size() << " ";
+    for (const auto& type : v->typesSupplementaires) {
+        os << *type << " ";  // Affiche les types supplémentaires
+    }
+    return os;
+}
+void creer(fstream &f){
+    f.open("Vitamine.txt", ios ::in | ios ::out |ios ::trunc) ;
+    if( ! f.is_open()) {exit(-1);}
+}
+void lire_fichier(){
+    fstream fi("Vitamine.txt");
+    if (!fi) cout<<"\n erreur fichier Vitamine";
+    fi>>this;
+    fi.close();
+}
+void enregistrer_fichier(){
+    fstream f("Vitamine.txt");
+    if (!f) {cout<<"\n erreur fichier Vitamine "; }
+    f<<this;
+    f.close();
+}
     void afficherMedInfo() {
         Medicament::afficherMedInfo();
         for (unsigned int i=0; i<typesSupplementaires.size();i++) {
             cout << *typesSupplementaires[i];
         }
 }
-
     void modifierMedInfo(string nom, float prix, int stock, string dateExp) {
         Medicament::modifierMedInfo(nom, prix, stock, dateExp);
 }
@@ -334,25 +481,22 @@ public:
         delete typesSupplementaires[i];
     }
 }
-
 };
-
 class Commande{
     static int nbTotalCommandes;
     string codeCommande;
-    int numCommande;
     int qteCommande;
     string dateCommande;
     vector<Medicament*> medicaments;
+
 public:
     Commande(string code, int qteCmd, string dateCmd){
         codeCommande=code;
         qteCommande=qteCmd;
         dateCommande=dateCmd;
-        numCommande = ++nbTotalCommandes;
     };
-    Commande() : codeCommande(""), qteCommande(0), dateCommande(""), numCommande(++nbTotalCommandes) {}
-    Commande(const Commande& c): codeCommande(c.codeCommande),numCommande(c.numCommande),qteCommande(c.qteCommande),dateCommande(c.dateCommande){
+    Commande() : codeCommande(""), qteCommande(0), dateCommande("") {}
+    Commande(const Commande& c): codeCommande(c.codeCommande),qteCommande(c.qteCommande),dateCommande(c.dateCommande){
         for (unsigned int i=0;i<c.medicaments.size();i++){
                 Medicament* med;
             if (typeid(*c.medicaments[i])==typeid(Medicament))
@@ -368,7 +512,6 @@ public:
     }
 friend ostream& operator<<(ostream& os, const Commande& cmd) {
     os << "Code commande: " << cmd.codeCommande << endl;
-    os << "Numéro commande: " << cmd.numCommande << endl;
     os << "Quantité commande: " << cmd.qteCommande << endl;
     os << "Date commande: " << cmd.dateCommande << endl;
     os << "Nombre total de médicaments: " << cmd.medicaments.size() << endl;
@@ -377,24 +520,172 @@ friend ostream& operator<<(ostream& os, const Commande& cmd) {
         os << "\tMédicament " << i + 1 << ":\n";
         os << *cmd.medicaments[i];
     }
+    return os;
+}
+friend ostream& operator<<(ostream& os, const Commande* cmd) {
+    os << cmd->codeCommande << " ";
+    os << cmd->qteCommande << " ";
+    os << cmd->dateCommande << " ";
+    os << cmd->medicaments.size() << "\n";
 
+    for (unsigned int i = 0; i < cmd->medicaments.size(); ++i) {
+        os << *cmd->medicaments[i]<<"\n";
+    }
     return os;
 }
 friend istream& operator>>(istream& is, Commande& cmd) {
-        cout << "Entrer le code commande:";
-        is >> cmd.codeCommande;
-        cout << "Entrer la quantité:";
-        is >> cmd.qteCommande;
-        cout << "Entrer la date:";
-        is >> cmd.dateCommande;
-        cmd.numCommande = ++Commande::nbTotalCommandes;
-        return is;
+    cout << "Entrer le code commande: ";
+    is >> cmd.codeCommande;
+    cout << "Entrer la quantité: ";
+    is >> cmd.qteCommande;
+    cout << "Entrer la date: ";
+    is >> cmd.dateCommande;
+    int nbMeds;
+    cout << "Combien de medicaments dans cette commande ? ";
+    is >> nbMeds;
+    cmd.medicaments.clear();
+    for (int i = 0; i < nbMeds; ++i) {
+        cout << "*Saisie du medicament num*" << i + 1 << " :" << endl;
+        Medicament* m = new Medicament();
+        is >> *m;
+        cmd.medicaments.push_back(m);
+    }
+    return is;
 }
+friend istream& operator>>(istream& is, Commande* cmd) {
+    int nbMeds;
+    is >> cmd->codeCommande >> cmd->qteCommande >> cmd->dateCommande >> nbMeds;
+    cmd->medicaments.clear();
+    if (cmd->codeCommande.empty() || cmd->qteCommande <= 0 || cmd->dateCommande.empty()) {
+        cout << "" << endl;
+        return is;
+    }
+    cout << "Code Commande: " << cmd->codeCommande << "\n";
+    cout << "Quantite: " << cmd->qteCommande << endl;
+    cout << "Date de commande: " << cmd->dateCommande << endl;
+    cout<<"***************************************\n";
+
+    for (unsigned int i = 0; i < nbMeds; i++) {
+        Medicament* m = new Medicament();
+        is >> m;
+        cmd->medicaments.push_back(m);
+        cout<<"----------------------------\n";
+    }
+        cout<<"***************************************\n";
+    return is;
+}
+    Commande operator+(const Commande& other) const {
+    Commande resultat = *this;
+    for (unsigned int i=0;i<other.medicaments.size();i++) {
+        resultat.ajouterMedicamentACommande(other.medicaments[i]);
+    }
+    return resultat;
+}
+
     Medicament*& operator[](int index) {
     if (index < 0 || index >= medicaments.size()) {
-        throw out_of_range("Index invalide !");
+        throw out_of_range("Indice invalide!");
     }
     return medicaments[index];
+}
+void creer(fstream &f){
+    f.open("Commande.txt", ios ::in | ios ::out |ios ::trunc) ;
+    if( ! f.is_open()) {exit(-1);}}
+
+void enregistrer_fichier() {
+    fstream f("Commande.txt", ios::out | ios::app);
+    if (!f.is_open()) {
+        cout << "\nErreur fichier Commande ";
+        return;
+    }
+    f << this;
+    f.close();
+}
+void lire_fichier(vector<Commande*>* commandes = nullptr) {
+    fstream fi("Commande.txt", ios::in);
+    if (!fi.is_open()) {
+        cout << "\nErreur fichier Commande";
+        return;
+    }
+    while (!fi.eof()) {
+        Commande* cmd = new Commande();
+        fi >> cmd;
+        if (commandes) {
+            commandes->push_back(cmd); // ajouter au vecteur si fourni
+        } else {
+            delete cmd;
+    }}
+    fi.close();
+};
+
+static void enregistrerCommandesDansFichierDepuisTableau(vector<Commande*>& commandes) {
+    fstream f("Commande.txt", ios::out | ios::trunc);
+    if (!f) {
+        cout << "Erreur lors de l'ouverture du fichier pour réécriture!" << endl;
+        return;
+    }
+
+    for (unsigned int i = 0; i < commandes.size(); ++i) {
+        f << commandes[i];
+    }
+
+    f.close();
+    cout << "Fichier mis à jour avec succès!" << endl;
+}
+static void chargerCommandesDansTableauDepuisFichier(vector<Commande*>& commandes) {
+    fstream fi("Commande.txt", ios::in);
+    if (!fi) {
+        cout << "Erreur lors de l'ouverture du fichier!" << endl;
+        return;
+    }
+
+    Commande* cmd;
+    while (fi >> cmd) {
+        commandes.push_back(cmd);
+    }
+    fi.close();
+}
+    static void modifierCommande(const string& codeCommandeRecherche, const string& newCode, const string& newDate, int newQteCommande, Medicament* medToAdd = nullptr, const string& medToRemove = "") {
+    Commande cmd1;
+    vector<Commande*> commandes;
+    cmd1.lire_fichier(&commandes);
+    for (unsigned int i = 0; i < commandes.size(); ++i) {
+        if (commandes[i]->codeCommande == codeCommandeRecherche) {
+            commandes[i]->codeCommande = newCode;
+            commandes[i]->dateCommande = newDate;
+            commandes[i]->qteCommande = newQteCommande;
+            cout << "Commande modifiée avec succès!" << endl;
+
+            if (medToAdd != nullptr) {
+                commandes[i]->ajouterMedicamentACommande(medToAdd);
+                cout << "Médicament ajouté à la commande." << endl;
+            }
+
+            if (!medToRemove.empty()) {
+                commandes[i]->supprimerMedicamentDeCommande(medToRemove);
+            }
+            Commande::enregistrerCommandesDansFichierDepuisTableau(commandes);
+            return;
+        }
+    }
+    cout << "Commande non trouvée." << endl;
+}
+static void supprimerCommande(const string& codeCommandeASupprimer) {
+    Commande cmd1;
+    vector<Commande*> commandes;
+    cmd1.lire_fichier(&commandes);
+
+    for (unsigned int i = 0; i < commandes.size(); ++i) {
+        if (commandes[i]->codeCommande == codeCommandeASupprimer) {
+            delete commandes[i];                   // Libérer la mémoire
+            commandes.erase(commandes.begin() + i); // Enlever du vecteur
+            cout << "Commande supprimée avec succès!" << endl;
+
+            Commande::enregistrerCommandesDansFichierDepuisTableau(commandes);
+            return;
+        }
+    }
+    cout << "Commande non trouvée." << endl;
 }
 
     ~Commande(){
@@ -404,39 +695,30 @@ friend istream& operator>>(istream& is, Commande& cmd) {
     };
     void afficherCommande(){
       cout<<codeCommande<<endl;
-      cout<<numCommande<<endl;
       cout<<qteCommande<<endl;
       cout<<dateCommande<<endl;
       cout<<nbTotalCommandes<<endl;
       for (unsigned int i=0;i<medicaments.size();i++)
         cout<<medicaments[i]->getIdMedicament()<<"\t"<<medicaments[i]->getNomMedicament()<<"\t"<<medicaments[i]->getPrixMedicament()<<"\t"<<medicaments[i]->getDateExpiration()<<"\t"<<endl;
     };
-    void modifierCommande(string newCode, string newDate, Medicament* med, int index){
-        codeCommande=newCode;
-        dateCommande=newDate;
-        bool test=false;
-        int i=0;
-        while(!test && i<medicaments.size()){
-            (i=index-1)? test=true : i++;
-        }
-        if (test){
-                medicaments[i]=med;
-        };
-    };
     void ajouterMedicamentACommande(Medicament* med){
         medicaments.push_back(med);
     }
-    void supprimerMedicamentDeCommande(Medicament* med){
-        bool test=false;
-        int i=0;
-        while(!test && i<medicaments.size()){
-            (medicaments[i]->getNomMedicament()==med->getNomMedicament())? test=true : i++;
+    void supprimerMedicamentDeCommande(const string& nomMedicament) {
+    bool found = false;
+    for (unsigned int i = 0; i < medicaments.size(); ++i) {
+        if (medicaments[i]->getNomMedicament() == nomMedicament) {
+            medicaments.erase(medicaments.begin() + i);
+            found = true;
+            cout << "Médicament " << nomMedicament << " supprimé de la commande." << endl;
+            break;
         }
-        if (test)
-            medicaments.erase(medicaments.begin()+i);
-        else
-            cout<<"Medicament non existant dans la commande"<<endl;
     }
+    if (!found) {
+        cout << "Médicament non trouvé dans la commande." << endl;
+    }
+}
+
     float calculerMontantTotal(){
         float s=0;
         for (unsigned int i=0;i<medicaments.size();i++)
@@ -498,5 +780,4 @@ public:
 
 };
 
-
-#endif // HEADER_H_INCLUDED
+#endif // HEADERS_H_INCLUDED
