@@ -238,30 +238,154 @@ int main() {
     int choix;
 
     do {
-        cout << "\n========== MENU PRINCIPAL ==========" << endl;
-        cout << "1. Gerer les commandes" << endl;
-        cout << "2. Gerer les medicaments" << endl;
-        cout << "3. Gerer les vitamines" << endl;
-        cout << "0. Quitter" << endl;
-        cout << "Votre choix: ";
+        cout << "=== Menu Principal ===" << endl;
+        cout << "1 - Surcharge" << endl;
+        cout << "2 - Fichiers" << endl;
+        cout << "3 - Exception" << endl;
+        cout << "4 - STL" << endl;
+        cout << "0 - Quitter" << endl;
+        cout << "Votre choix : ";
         cin >> choix;
 
         switch (choix) {
-            case 1:
-                menuCommande();
-                break;
-            case 2:
-                menuMedicament();
-                break;
-            case 3:
-                menuVitamine();
-                break;
+            case 1: {
+    int sousChoix;
+    do {
+        cout << "--- Surcharge d'operateurs ---" << endl;
+        cout << "1 - operator <<" << endl;
+        cout << "2 - operator >>" << endl;
+        cout << "3 - operator +" << endl;
+        cout << "0 - Retour au menu principal" << endl;
+        cout << "Votre choix : ";
+        cin >> sousChoix;
+
+        switch (sousChoix) {
+            case 1:{
+                cout << "Vous avez choisi operator <<." << endl;
+                Medicament m(1, "Sanofi", 0, 0,"10/10/2025");
+                cout << m << endl;
+                break;}
+            case 2:{
+                cout << "Vous avez choisi operator >>." << endl;
+                Medicament m;
+                    cout << "Entrez les informations du medicament :" << endl;
+                    cin >> m;
+                    cout << "Vous avez saisi :" << endl;
+                    cout << m << endl;
+
+                break;}
+            case 3:{
+                cout << "Vous avez choisi operator +." << endl;
+                Commande m1;
+                cin>>m1;
+                Commande m2;
+                cin>>m2;
+                Commande m3 = m1 + m2;
+                cout << "Stock total après addition : " << endl;
+                cout << m3<< endl;
+
+                break;}
             case 0:
-                cout << "Fermeture du programme...\n";
+                cout << "Retour au menu principal..." << endl;
                 break;
             default:
-                cout << "Choix invalide. Veuillez réessayer.\n";
+                cout << "Sous-choix invalide, veuillez réessayer." << endl;
+                break;
         }
+
+        cout << endl;
+    } while (sousChoix != 0);
+
+    break;
+}
+
+case 2: {
+    int sousChoixFichiers;
+    do {
+        cout << "--- Gestion des Fichiers ---" << endl;
+        cout << "1 - Commandes" << endl;
+        cout << "2 - Medicaments" << endl;
+        cout << "3 - Vitamines" << endl;
+        cout << "0 - Retour au menu principal" << endl;
+        cout << "Votre choix : ";
+        cin >> sousChoixFichiers;
+
+        switch (sousChoixFichiers) {
+            case 1: { menuCommande();
+    break;
+}
+
+            case 2:{ menuMedicament();
+    break;
+}
+case 3: { menuVitamine();
+    break;
+}
+            case 0:
+                cout << "Retour au menu principal..." << endl;
+                break;
+            default:
+                cout << "Sous-choix invalide, veuillez réessayer." << endl;
+                break;
+        }
+
+        cout << endl;
+    } while (sousChoixFichiers != 0);
+
+    break;
+}
+
+            case 3:
+                cout << "Vous avez choisi Exception." << endl;
+                // Appeler ici une fonction qui traite des exceptions
+                break;
+            case 4: { // STL
+    int choixSTL;
+    do {
+        cout << "--- Menu STL ---" << endl;
+        cout << "1 - Affichage" << endl;
+        cout << "2 - Ajouter" << endl;
+        cout << "3 - Algorithmes" << endl;
+        cout << "0 - Retour" << endl;
+        cout << "Votre choix : ";
+        cin >> choixSTL;
+
+        switch (choixSTL) {
+            case 1:
+                cout << "Affichage des structures STL..." << endl;
+                // fonction afficherSTL();
+                break;
+            case 2:
+                cout << "Ajout d'éléments dans les structures STL..." << endl;
+                // fonction ajouterSTL();
+                break;
+            case 3:
+                cout << "Utilisation des algorithmes STL..." << endl;
+                // fonction algorithmesSTL();
+                break;
+            case 0:
+                cout << "Retour au menu précédent..." << endl;
+                break;
+            default:
+                cout << "Choix invalide, veuillez réessayer." << endl;
+                break;
+        }
+
+        cout << endl;
+    } while (choixSTL != 0);
+
+    break;
+}
+
+            case 0:
+                cout << "Au revoir !" << endl;
+                break;
+            default:
+                cout << "Choix invalide, veuillez réessayer." << endl;
+                break;
+        }
+
+        cout << endl;
     } while (choix != 0);
     return 0;
 };
