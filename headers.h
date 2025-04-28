@@ -601,14 +601,18 @@ static void supprimerVitamine(int idMedicamentASupprimer) {
 }
 };
 class Commande{
-    static int nbTotalCommandes;
     string codeCommande;
     int qteCommande;
     string dateCommande;
     vector<Medicament*> medicaments;
 
 public:
-    Commande(string code="", int qteCmd=0, string dateCmd="");
+    Commande(string code, int qteCmd, string dateCmd){
+        codeCommande=code;
+        qteCommande=qteCmd;
+        dateCommande=dateCmd;
+    };
+    Commande() : codeCommande(""), qteCommande(0), dateCommande("") {}
     Commande(const Commande& c): codeCommande(c.codeCommande),qteCommande(c.qteCommande),dateCommande(c.dateCommande){
         for (unsigned int i=0;i<c.medicaments.size();i++){
                 Medicament* med;
@@ -808,13 +812,11 @@ static void supprimerCommande(const string& codeCommandeASupprimer) {
     ~Commande(){
         for (unsigned int i=0;i<medicaments.size();i++)
             delete medicaments[i];
-            nbTotalCommandes--;
     };
     void afficherCommande(){
       cout<<codeCommande<<endl;
       cout<<qteCommande<<endl;
       cout<<dateCommande<<endl;
-      cout<<nbTotalCommandes<<endl;
       for (unsigned int i=0;i<medicaments.size();i++)
         cout<<medicaments[i]->getIdMedicament()<<"\t"<<medicaments[i]->getNomMedicament()<<"\t"<<medicaments[i]->getPrixMedicament()<<"\t"<<medicaments[i]->getDateExpiration()<<"\t"<<endl;
     };

@@ -2,7 +2,6 @@
 #include <vector>
 using namespace std;
 
-int Commande::nbTotalCommandes = 0;
 
 void menuMedicament() {
     int choix;
