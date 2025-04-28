@@ -8,7 +8,7 @@
 	<vector>
 	<typeinfo>
 
-1745835760 source:c:\users\lotba\onedrive\desktop\c++\usine pharmaceutique\main.cpp
+1745872069 source:c:\users\lotba\onedrive\desktop\c++\usine pharmaceutique\main.cpp
 	"headers.h"
 	<vector>
 
@@ -23,9 +23,12 @@
 	<vector>
 	<string>
 
-1745835615 c:\users\lotba\onedrive\desktop\c++\usine pharmaceutique\headers.h
+1745872524 c:\users\lotba\onedrive\desktop\c++\usine pharmaceutique\headers.h
 	<string>
 	<fstream>
+	<map>
+	<algorithm>
+	<list>
 	<istream>
 	<iostream>
 	<vector>
@@ -37,7 +40,7 @@
 	<vector>
 	<string>
 
-1745510997 source:c:\users\lotba\onedrive\desktop\c++\usine pharmaceutique\azizcpp.cpp
+1745871601 source:c:\users\lotba\onedrive\desktop\c++\usine pharmaceutique\azizcpp.cpp
 	<iostream>
 	<vector>
 	<string>
@@ -45,4 +48,64 @@
 	<istream>
 	<typeinfo>
 	"headersAziz.h"
+
+1745865848 c:\users\lotba\onedrive\desktop\c++\usine pharmaceutique\commande.h
+	<iostream>
+	<vector>
+	<fstream>
+	<typeinfo>
+	"Medicament.h"
+	"Antibiotique.h"
+	"AntiInflammatoire.h"
+	"Vitamine.h"
+
+1745868005 c:\users\lotba\onedrive\desktop\c++\usine pharmaceutique\medicament.h
+	<iostream>
+	<vector>
+	<fstream>
+	<string>
+	"headersAziz.h"
+
+1745866345 c:\users\lotba\onedrive\desktop\c++\usine pharmaceutique\antibiotique.h
+	<iostream>
+	<string>
+	"Medicament.h"
+
+1745866279 c:\users\lotba\onedrive\desktop\c++\usine pharmaceutique\antiinflammatoire.h
+	<iostream>
+	<string>
+	"Medicament.h"
+
+1745866787 c:\users\lotba\onedrive\desktop\c++\usine pharmaceutique\vitamine.h
+	<iostream>
+	<fstream>
+	<vector>
+	<string>
+	"Medicament.h"
+
+1745866795 c:\users\lotba\onedrive\desktop\c++\usine pharmaceutique\client.h
+	<iostream>
+	<string>
+	<list>
+	<algorithm>
+	"Commande.h"
+
+1745866202 c:\users\lotba\onedrive\desktop\c++\usine pharmaceutique\medicamentcombine.h
+	<iostream>
+	<string>
+	<map>
+	<vector>
+	<algorithm>
+	"Antibiotique.h"
+	"AntiInflammatoire.h"
+
+1745868905 source:c:\users\lotba\onedrive\desktop\c++\usine pharmaceutique\test.cpp
+	"Commande.h"
+	"Medicament.h"
+	"Client.h"
+	"Vitamine.h"
+	"MedicamentCombine.h"
+	"AntiInflammatoire.h"
+	"Antibiotique.h"
+	<vector>
 

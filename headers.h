@@ -2,6 +2,9 @@
 #define HEADER_H_INCLUDED
 #include <string>
 #include <fstream>
+#include<map>
+#include<algorithm>
+#include<list>
 #include <istream>
 #include <iostream>
 #include<vector>
@@ -9,6 +12,7 @@
 #include <typeinfo>
 using namespace std;
 class Medicament {
+protected:
     int idMedicament;
     string nomMedicament;
     int prix;
@@ -143,7 +147,7 @@ void enregistrer_fichier() {
     f << this;
     f.close();
 }
-void lire_fichier() {
+void lire_fichier(vector<Medicament*>* medicaments = nullptr) {
     fstream fi("Medicament.txt", ios::in);
     if (!fi.is_open()) {
         cout << "\nErreur fichier Commande";
@@ -152,39 +156,102 @@ void lire_fichier() {
     while (!fi.eof()) {
         Medicament* med = new Medicament();
         fi >> med;
-        delete med;
-    }
+        if (medicaments) {
+            medicaments->push_back(med); // ajouter au vecteur si fourni
+        } else {
+            delete med;
+    }}
     fi.close();
 };
-    int rechercher(string nomEmployee) {
-        for (size_t i = 0; i < pharmaciens.size(); ++i) {
-            if (pharmaciens[i]->getNom() == nomEmployee) {
-                return i;
-            }
-        }
-        return -1;
+static void enregistrerMedicamentsDansFichierDepuisTableau(vector<Medicament*>& medicaments) {
+    fstream f("Medicament.txt", ios::out | ios::trunc);
+    if (!f) {
+        cout << "Erreur lors de l'ouverture du fichier pour réécriture!" << endl;
+        return;
     }
-     void ajouterPharmacien(Pharmacien* phar) {
+
+    for (unsigned int i = 0; i < medicaments.size(); ++i) {
+        f << medicaments[i];
+    }
+
+    f.close();
+    cout << "Fichier mis à jour avec succès!" << endl;
+}
+static void chargerMedicamentsDansTableauDepuisFichier(vector<Medicament*>& medicaments) {
+    fstream fi("Medicament.txt", ios::in);
+    if (!fi) {
+        cout << "Erreur lors de l'ouverture du fichier!" << endl;
+        return;
+    }
+    Medicament* med;
+    while (fi >> med) {
+        medicaments.push_back(med);
+    }
+    fi.close();
+}
+static void modifierMedicament(int idMedicamentRecherche, const string& newNom, int newPrix, int newQteStock, Pharmacien* pharToAdd = nullptr, const string& pharToRemove = "") {
+    Medicament med1;
+    vector<Medicament*> medicaments;
+    med1.lire_fichier(&medicaments);
+
+    for (unsigned int i = 0; i < medicaments.size(); ++i) {
+        if (medicaments[i]->idMedicament == idMedicamentRecherche) {
+            medicaments[i]->nomMedicament = newNom;
+            medicaments[i]->prix = newPrix;
+            medicaments[i]->stock = newQteStock;
+
+            cout << "Medicament modifié avec succès!" << endl;
+
+            if (pharToAdd != nullptr) {
+                medicaments[i]->ajouterPharmacienAMedicament(pharToAdd);
+                cout << "Pharmacien ajouté au médicament." << endl;
+            }
+            if (!pharToRemove.empty()) {
+                medicaments[i]->supprimerPharmaciendeMedicament(pharToRemove);
+            }
+
+            Medicament::enregistrerMedicamentsDansFichierDepuisTableau(medicaments);
+            return;
+        }
+    }
+    cout << "Medicament non trouvé." << endl;
+}
+
+static void supprimerMedicament(int idMedicamentASupprimer) {
+    Medicament med;
+    vector<Medicament*> medicaments;
+    med.lire_fichier(&medicaments);
+
+    for (unsigned int i = 0; i < medicaments.size(); ++i) {
+        if (medicaments[i]->idMedicament == idMedicamentASupprimer) {
+            delete medicaments[i];                     // Libérer la mémoire
+            medicaments.erase(medicaments.begin() + i); // Enlever du vecteur
+            cout << "Medicament supprimé avec succès!" << endl;
+
+            Medicament::enregistrerMedicamentsDansFichierDepuisTableau(medicaments);
+            return;
+        }
+    }
+    cout << "Medicament non trouvé." << endl;
+}
+
+    void ajouterPharmacienAMedicament(Pharmacien* phar){
         pharmaciens.push_back(phar);
     }
-    void supprimerPharmacien(string codeEmploye) {
-        int index = rechercher(codeEmploye);
-        if (index != -1) {
-            pharmaciens.erase(pharmaciens.begin() + index);
-            cout << "Pharmacien supprime avec succes" << endl;
-        } else {
-            cout << "Pharmacien non trouve" << endl;
+    void supprimerPharmaciendeMedicament(const string& nomPharmacien) {
+    bool found = false;
+    for (unsigned int i = 0; i < pharmaciens.size(); ++i) {
+        if (pharmaciens[i]->getNom() == nomPharmacien) {
+            pharmaciens.erase(pharmaciens.begin() + i);
+            found = true;
+            cout << "Pharmaciens " << nomPharmacien << " supprimé du medicament." << endl;
+            break;
         }
     }
-    void modifierPharmacien(string code, Pharmacien* nouveauPharmacien) {
-        int index = rechercher(code);
-        if (index != -1) {
-            pharmaciens[index] = nouveauPharmacien;
-            cout << "Pharmacien modifie avec succes" << endl;
-        } else {
-            cout << "Pharmacien non trouve" << endl;
-        }
+    if (!found) {
+        cout << "Pharmacien non trouvé dans le medicament." << endl;
     }
+}
     void afficherPharmacien() {
         if (pharmaciens.empty()) {
             cout << "Aucun pharmacien associe a ce medicament" << endl;
@@ -314,106 +381,90 @@ public:
     ~AntiInflammatoire(){};
 };
 
-class MedicamentCombine :public Antibiotique, public AntiInflammatoire {
-    int nbPrincipesActifs;
-    string* principesActifs;
+class MedicamentCombine : public Antibiotique, public AntiInflammatoire {
+private:
+    map<string, string> principesActifs;
 public:
-    MedicamentCombine(int id, string nom, float p, int s, string date, string spectre, bool steroidien,int nb):
-          Medicament(id, nom, p, s, date),
+    MedicamentCombine(int id, const string& nom, float p, int s, const string& date, const string& spectre, bool steroidien)
+        : Medicament(id, nom, p, s, date),
           Antibiotique(id, nom, p, s, date, spectre),
           AntiInflammatoire(id, nom, p, s, date, steroidien)
-          {nbPrincipesActifs=nb;
-            principesActifs = new string[nbPrincipesActifs];}
+    {}
 
-     void ajouterPA(string principeActif) {
-        string* newPrincipesActifs = new string[nbPrincipesActifs + 1];
-        for (int i = 0; i < nbPrincipesActifs; i++) {
-            newPrincipesActifs[i] = principesActifs[i];
-        }
-        newPrincipesActifs[nbPrincipesActifs] = principeActif;
-        delete[] principesActifs;
-        principesActifs = newPrincipesActifs;
-        nbPrincipesActifs++;
+    virtual ~MedicamentCombine() {}
+
+    void ajouterPrincipeActif(const string& nom, const string& description) {
+        principesActifs[nom] = description;
     }
-      void supprimerPA(string principeActif) {
-        for (int i = 0; i < nbPrincipesActifs; i++) {
-            if (principesActifs[i] == principeActif) {
-                string* newPrincipesActifs = new string[nbPrincipesActifs - 1];
-                for (int j = 0, k = 0; j < nbPrincipesActifs; j++) {
-                    if (j != i) {
-                        newPrincipesActifs[k++] = principesActifs[j];
-                    }
-                }
-                delete[] principesActifs;
-                principesActifs = newPrincipesActifs;
-                nbPrincipesActifs--;
-                break;
-            }
+
+    void supprimerPrincipeActif(const string& nom) {
+        principesActifs.erase(nom);
+    }
+
+    void afficherPrincipesActifs() const {
+        if (principesActifs.empty()) {
+            cout << "Aucun principe actif." << endl;
+            return;
+        }
+        for (const auto& p : principesActifs) {
+            cout << "Principe Actif: " << p.first << " - Description: " << p.second << endl;
         }
     }
-    void modifierPA(string ancienPA, string nouveauPA) {
-        for (int i = 0; i < nbPrincipesActifs; i++) {
-            if (principesActifs[i] == ancienPA) {
-                principesActifs[i] = nouveauPA;
-                break;
-            }
+    const map<string, string>& getPrincipesActifs() const {
+        return principesActifs;
+    }
+    void afficherParTailleNom() const {
+    vector<pair<string, string>> temp(principesActifs.begin(), principesActifs.end());
+
+    sort(temp.begin(), temp.end(), [](const auto& a, const auto& b) {
+        return a.first.size() < b.first.size();
+    });
+
+    for (const auto& p : temp) {
+        cout << p.first << " - " << p.second << endl;
+    }
+}
+void rechercherPrincipeActifParMotCle(const string& motCle) const {
+    bool trouve = false;
+    for (const auto& p : principesActifs) {
+        if (p.first.find(motCle) != string::npos) { // si motClé est dans le nom
+            cout << "Trouvé: " << p.first << " - " << p.second << endl;
+            trouve = true;
         }
     }
-    void afficherPA() {
-        cout << "Principes Actifs: " << endl;
-        for (int i = 0; i < nbPrincipesActifs; i++) {
-            cout << "- " << principesActifs[i] << endl;
-        }
+    if (!trouve) {
+        cout << "Aucun principe actif correspondant au mot-clé: " << motCle << endl;
     }
-    void modifierMedInfo(int id, string nom, float p, int s, string date, string spectre, bool steroidien){
-        Medicament::modifierMedInfo(nom,p,s,date);
-    }
-    void afficherMedInfo(){
-        Antibiotique::afficherMedInfo();
-        AntiInflammatoire::afficherMedInfo();
-    }
-     virtual ~MedicamentCombine() {
-         delete[] principesActifs;
-         }
+}
+
 };
+
+
+
 class Vitamine : public Medicament {
     vector<string*> typesSupplementaires;
 public:
     Vitamine(int id, string nom, float p, int s, string date)
     : Medicament(id, nom, p, s, date) {}
+    Vitamine() : Medicament() {}
 
     // --- Lecture/Ecriture brut sans affichage
 friend ostream& operator<<(ostream& os, const Vitamine& vit) {
-    os << static_cast<const Medicament&>(vit) << " "; // Appeler opérateur<< de Medicament
-    os << vit.typesSupplementaires.size() << " ";
-    for (unsigned int i = 0; i < vit.typesSupplementaires.size(); ++i) {
-        os << *vit.typesSupplementaires[i] << " ";
-    }
+    os << static_cast<const Medicament&>(vit) << " ";
     return os;
 }
 
 friend istream& operator>>(istream& is, Vitamine& vit) {
-    is >> static_cast<Medicament&>(vit); // Lire partie Medicament
-
-    int nbTypes;
-    is >> nbTypes;
-    vit.typesSupplementaires.clear();
-
-    for (int i = 0; i < nbTypes; ++i) {
-        string* type = new string;
-        is >> *type;
-        vit.typesSupplementaires.push_back(type);
-    }
+    is >> static_cast<Medicament&>(vit);
     return is;
 }
 
 // --- Lecture avec affichage pour l'exécution
 friend istream& operator>>(istream& is, Vitamine* vit) {
     is >> static_cast<Medicament&>(*vit);
-
-    int nbTypes;
-    is >> nbTypes;
-    vit->typesSupplementaires.clear();
+    if (vit->getIdMedicament()<=0 || vit->getPrixMedicament() <= 0 || vit->getNomMedicament().empty()) {
+        cout << "" << endl;
+        return is;}
 
     cout << "\nLecture Vitamine :" << endl;
     cout << "ID: " << vit->getIdMedicament() << endl;
@@ -421,40 +472,107 @@ friend istream& operator>>(istream& is, Vitamine* vit) {
     cout << "Prix: " << vit->getPrixMedicament() << endl;
     cout << "Stock: " << vit->getStockMedicament() << endl;
     cout << "Date Expiration: " << vit->getDateExpiration() << endl;
-    cout << "Nombre de types supplementaires: " << nbTypes << endl;
 
-    for (int i = 0; i < nbTypes; i++) {
-        string* type = new string;
-        is >> *type;
-        cout << "- " << *type << endl;
-        vit->typesSupplementaires.push_back(type);
-    }
     return is;
 }
 friend ostream& operator<<(ostream& os, const Vitamine* v) {
     os << static_cast<const Medicament&>(*v) << " ";
     os << v->typesSupplementaires.size() << " ";
-    for (const auto& type : v->typesSupplementaires) {
-        os << *type << " ";  // Affiche les types supplémentaires
-    }
     return os;
 }
 void creer(fstream &f){
     f.open("Vitamine.txt", ios ::in | ios ::out |ios ::trunc) ;
-    if( ! f.is_open()) {exit(-1);}
-}
-void lire_fichier(){
-    fstream fi("Vitamine.txt");
-    if (!fi) cout<<"\n erreur fichier Vitamine";
-    fi>>this;
-    fi.close();
-}
-void enregistrer_fichier(){
-    fstream f("Vitamine.txt");
-    if (!f) {cout<<"\n erreur fichier Vitamine "; }
-    f<<this;
+    if( ! f.is_open()) {exit(-1);}}
+
+void enregistrer_fichier() {
+    fstream f("Vitamine.txt", ios::out | ios::app);
+    if (!f.is_open()) {
+        cout << "\nErreur fichier Commande ";
+        return;
+    }
+    f << this;
     f.close();
 }
+void lire_fichier(vector<Vitamine*>* vitamines = nullptr) {
+    fstream fi("Vitamine.txt", ios::in);
+    if (!fi.is_open()) {
+        cout << "\nErreur fichier Commande";
+        return;
+    }
+    while (!fi.eof()) {
+        Vitamine* vit = new Vitamine();
+        fi >> vit;
+        if (vitamines) {
+            vitamines->push_back(vit);
+        } else {
+            delete vit;
+    }}
+    fi.close();
+};
+static void enregistrerVitaminesDansFichierDepuisTableau(vector<Vitamine*>& vitamines) {
+    fstream f("Vitamine.txt", ios::out | ios::trunc);
+    if (!f) {
+        cout << "Erreur lors de l'ouverture du fichier pour réécriture!" << endl;
+        return;
+    }
+
+    for (unsigned int i = 0; i < vitamines.size(); ++i) {
+        f << vitamines[i];
+    }
+
+    f.close();
+    cout << "Fichier mis à jour avec succès!" << endl;
+}
+static void chargerVitaminesDansTableauDepuisFichier(vector<Vitamine*>& vitamines) {
+    fstream fi("Vitamine.txt", ios::in);
+    if (!fi) {
+        cout << "Erreur lors de l'ouverture du fichier!" << endl;
+        return;
+    }
+    Vitamine* vit;
+    while (fi >> vit) {
+        vitamines.push_back(vit);
+    }
+    fi.close();
+}
+static void modifierVitamine(int idMedicamentRecherche, const string& newNom, int newPrix, int newQteStock, Pharmacien* pharToAdd = nullptr, const string& pharToRemove = "") {
+    Vitamine vit;
+    vector<Vitamine*> vitamines;
+    vit.lire_fichier(&vitamines);
+
+    for (unsigned int i = 0; i < vitamines.size(); ++i) {
+            if (vitamines[i]->getIdMedicament() == idMedicamentRecherche){
+            vitamines[i]->setNomMedicament(newNom);
+            vitamines[i]->setPrixdMedicament(newPrix);
+            vitamines[i]->setStockdMedicament(newQteStock);
+
+            cout << "Vitamine modifie avec succes!" << endl;
+
+            Vitamine::enregistrerVitaminesDansFichierDepuisTableau(vitamines);
+            return;
+        }
+    }
+    cout << "Vitamine non trouve." << endl;
+}
+
+static void supprimerVitamine(int idMedicamentASupprimer) {
+    Vitamine vit;
+    vector<Vitamine*> vitamines;
+    vit.lire_fichier(&vitamines);
+
+    for (unsigned int i = 0; i < vitamines.size(); ++i) {
+        if (vitamines[i]->getIdMedicament() == idMedicamentASupprimer){
+            delete vitamines[i];                     // Libérer la mémoire
+            vitamines.erase(vitamines.begin() + i); // Enlever du vecteur
+            cout << "Vitamine supprime avec succes!" << endl;
+
+            Vitamine::enregistrerVitaminesDansFichierDepuisTableau(vitamines);
+            return;
+        }
+    }
+    cout << "Vitamine non trouve." << endl;
+};
+
     void afficherMedInfo() {
         Medicament::afficherMedInfo();
         for (unsigned int i=0; i<typesSupplementaires.size();i++) {
@@ -490,12 +608,7 @@ class Commande{
     vector<Medicament*> medicaments;
 
 public:
-    Commande(string code, int qteCmd, string dateCmd){
-        codeCommande=code;
-        qteCommande=qteCmd;
-        dateCommande=dateCmd;
-    };
-    Commande() : codeCommande(""), qteCommande(0), dateCommande("") {}
+    Commande(string code="", int qteCmd=0, string dateCmd="");
     Commande(const Commande& c): codeCommande(c.codeCommande),qteCommande(c.qteCommande),dateCommande(c.dateCommande){
         for (unsigned int i=0;i<c.medicaments.size();i++){
                 Medicament* med;
@@ -510,6 +623,10 @@ public:
             medicaments.push_back(med);
 }
     }
+string getCodeCommande() const { return codeCommande; }
+    string getDateCommande() const { return dateCommande; }
+    int getQteCommande() const { return qteCommande; }
+
 friend ostream& operator<<(ostream& os, const Commande& cmd) {
     os << "Code commande: " << cmd.codeCommande << endl;
     os << "Quantité commande: " << cmd.qteCommande << endl;
@@ -678,7 +795,7 @@ static void supprimerCommande(const string& codeCommandeASupprimer) {
     for (unsigned int i = 0; i < commandes.size(); ++i) {
         if (commandes[i]->codeCommande == codeCommandeASupprimer) {
             delete commandes[i];                   // Libérer la mémoire
-            commandes.erase(commandes.begin() + i); // Enlever du vecteur
+            commandes.erase(commandes.begin() + i);
             cout << "Commande supprimée avec succès!" << endl;
 
             Commande::enregistrerCommandesDansFichierDepuisTableau(commandes);
@@ -718,6 +835,9 @@ static void supprimerCommande(const string& codeCommandeASupprimer) {
         cout << "Médicament non trouvé dans la commande." << endl;
     }
 }
+    string getCodeCommande()  { return codeCommande; }
+    string getDateCommande()  { return dateCommande; }
+    int getQteCommande()  { return qteCommande; }
 
     float calculerMontantTotal(){
         float s=0;
@@ -737,47 +857,50 @@ static void supprimerCommande(const string& codeCommandeASupprimer) {
         return medicaments.size();
     }
 };
-
-class Client{
+class Client {
+private:
     string nomClient;
     string prenomClient;
     string CINClient;
     string numTel;
     string emailClient;
-    Commande* commandes;
-    int nbCommandes;
-    int capacite;
+    list<Commande> commandes;
+
 public:
-    Client(string nom, string prenom, string CIN, string tel, string email,int cap=2) {
-        nomClient=nom;
-        prenomClient=prenom;
-        CINClient=CIN;
-        numTel=tel;
-        emailClient=email;
-        capacite = cap;
-        nbCommandes = 0;
-        commandes = new Commande[capacite];
-}
-    void afficherDetailsClient(){
-        cout << "Nom: " << nomClient << ", Prénom: " << prenomClient<< ", CIN: " << CINClient << ", Téléphone: " << numTel<< ", Email: " << emailClient << endl;
-};
-    void modifierClientInfos(string nom,string prenom,string tel, string email){
-        nomClient=nom;
-        prenomClient=prenom;
-        numTel=tel;
-        emailClient=email;
-};
-    ~Client(){
-        for (int i = 0; i < nbCommandes; i++)
-            delete[] commandes;
-    };
-    void passerCommande(Commande cmd) {
-        if (nbCommandes < capacite) {
-            commandes[nbCommandes++] = cmd;
+    Client(string nom, string prenom, string CIN, string tel, string email)
+        : nomClient(nom), prenomClient(prenom), CINClient(CIN), numTel(tel), emailClient(email) {}
+
+    void ajouterCommande(const Commande& cmd) {
+        commandes.push_back(cmd);
+    }
+
+    Commande* trouverCommandeParCode(const string& code) {
+        auto it = std::find_if(commandes.begin(), commandes.end(),
+            [&code](const Commande& cmd) {
+                return cmd.getCodeCommande() == code;
+            });
+        if (it != commandes.end()) {
+            return &(*it);  // Retourne un pointeur vers la commande trouvée
+        } else {
+            std::cout << "Commande avec le code " << code << " non trouvée." << std::endl;
+            return nullptr;
         }
     }
 
-
+    bool supprimerCommandeParCode(const string& code) {
+        auto it = std::find_if(commandes.begin(), commandes.end(),
+            [&code](const Commande& cmd) {
+                return cmd.getCodeCommande() == code;
+            });
+        if (it != commandes.end()) {
+            commandes.erase(it);  // Supprime la commande trouvée
+            std::cout << "Commande " << code << " supprimée avec succès." << std::endl;
+            return true;
+        } else {
+            std::cout << "Commande avec le code " << code << " non trouvée." << std::endl;
+            return false;
+        }
+    }
 };
 
 #endif // HEADERS_H_INCLUDED

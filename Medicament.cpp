@@ -1,63 +1,8 @@
-#ifndef MEDICAMENT_H
-#define MEDICAMENT_H
-
+#include "Medicament.h"
 #include <iostream>
-#include <vector>
-#include <fstream>
-#include <string>
-#include"headersAziz.h"
 
 
-using namespace std;
 
-class Medicament {
-protected:
-    int idMedicament;
-    string nomMedicament;
-    float prix;
-    int stock;
-    string dateExpiration;
-    vector<Pharmacien*> pharmaciens;
-
-public:
-    Medicament(int id=0, string nom="", float prix=0, int stock=0, string dateExp="01/01/2000");
-    Medicament(const Medicament& med);
-    Medicament& operator=(const Medicament& med);
-    friend ostream& operator<<(ostream& os, const Medicament& med);
-    friend istream& operator>>(istream& is, Medicament& med);
-    friend istream& operator>>(istream& is, Medicament* med);
-    friend ostream& operator<<(ostream& os, Medicament* m);
-
-    void creer(fstream &f);
-    void enregistrer_fichier();
-    void lire_fichier(vector<Medicament*>* medicaments = nullptr);
-    static void enregistrerMedicamentsDansFichierDepuisTableau(vector<Medicament*>& medicaments);
-    static void chargerMedicamentsDansTableauDepuisFichier(vector<Medicament*>& medicaments);
-    static void modifierMedicament(int idMedicamentRecherche, const string& newNom, int newPrix, int newQteStock, Pharmacien* pharToAdd = nullptr, const string& pharToRemove = "");
-    static void supprimerMedicament(int idMedicamentASupprimer);
-
-    void ajouterPharmacienAMedicament(Pharmacien* phar);
-    void supprimerPharmaciendeMedicament(const string& nomPharmacien);
-    void afficherPharmacien();
-
-    virtual void modifierMedInfo(string nom, float prix, int stock, string dateExp);
-    virtual ~Medicament();
-
-    int getIdMedicament();
-    void setIdMedicament(int id);
-    string getNomMedicament();
-    void setNomMedicament(string nom);
-    float getPrixMedicament();
-    void setPrixdMedicament(float prix);
-    int getStockMedicament();
-    void setStockdMedicament(int stock);
-    string getDateExpiration();
-    void setDateExpiration(string dateExpiration);
-    virtual bool estEnStock();
-    virtual void miseAJourStock(int quantite);
-    bool estPerime(string dateActuelle);
-};
-#endif // MEDICAMENT_H
 Medicament::Medicament(const Medicament& med)
     : idMedicament(med.idMedicament), nomMedicament(med.nomMedicament), prix(med.prix), stock(med.stock), dateExpiration(med.dateExpiration) {
     Pharmacien* phar;

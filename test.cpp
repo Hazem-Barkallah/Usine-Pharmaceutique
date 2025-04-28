@@ -1,9 +1,14 @@
-#include"headers.h"
+#include"Commande.h"
+#include"Medicament.h"
+#include"Client.h"
+#include"Vitamine.h"
+#include"MedicamentCombine.h"
+#include"AntiInflammatoire.h"
+#include"Antibiotique.h"
 #include <vector>
 using namespace std;
 
 int Commande::nbTotalCommandes = 0;
-
 void menuMedicament() {
     int choix;
     Medicament medicament;
@@ -154,6 +159,7 @@ void menuVitamine() {
 void menuCommande() {
     int choix;
     Commande commande;
+
     do {
         cout << "\n===== MENU COMMANDE =====" << endl;
         cout << "1. Creer/Reinitialiser le fichier de commandes" << endl;
@@ -265,5 +271,6 @@ int main() {
         }
     } while (choix != 0);
     return 0;
-};
+}
+
 

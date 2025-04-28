@@ -33,10 +33,9 @@
 			<Add option="-fexceptions" />
 		</Compiler>
 		<Unit filename="Azizcpp.cpp" />
-		<Unit filename="Commande.cpp">
+		<Unit filename="headers.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
-		<Unit filename="headers.h" />
 		<Unit filename="headersAziz.h" />
 		<Unit filename="main.cpp" />
 		<Extensions />
