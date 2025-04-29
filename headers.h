@@ -157,7 +157,7 @@ void lire_fichier(vector<Medicament*>* medicaments = nullptr) {
         Medicament* med = new Medicament();
         fi >> med;
         if (medicaments) {
-            medicaments->push_back(med); // ajouter au vecteur si fourni
+            medicaments->push_back(med);
         } else {
             delete med;
     }}
@@ -224,8 +224,8 @@ static void supprimerMedicament(int idMedicamentASupprimer) {
 
     for (unsigned int i = 0; i < medicaments.size(); ++i) {
         if (medicaments[i]->idMedicament == idMedicamentASupprimer) {
-            delete medicaments[i];                     // Libérer la mémoire
-            medicaments.erase(medicaments.begin() + i); // Enlever du vecteur
+            delete medicaments[i];
+            medicaments.erase(medicaments.begin() + i);
             cout << "Medicament supprimé avec succès!" << endl;
 
             Medicament::enregistrerMedicamentsDansFichierDepuisTableau(medicaments);
@@ -427,7 +427,7 @@ public:
 void rechercherPrincipeActifParMotCle(const string& motCle) const {
     bool trouve = false;
     for (const auto& p : principesActifs) {
-        if (p.first.find(motCle) != string::npos) { // si motClé est dans le nom
+        if (p.first.find(motCle) != string::npos) {
             cout << "Trouvé: " << p.first << " - " << p.second << endl;
             trouve = true;
         }
@@ -459,7 +459,6 @@ friend istream& operator>>(istream& is, Vitamine& vit) {
     return is;
 }
 
-// --- Lecture avec affichage pour l'exécution
 friend istream& operator>>(istream& is, Vitamine* vit) {
     is >> static_cast<Medicament&>(*vit);
     if (vit->getIdMedicament()<=0 || vit->getPrixMedicament() <= 0 || vit->getNomMedicament().empty()) {
@@ -562,8 +561,8 @@ static void supprimerVitamine(int idMedicamentASupprimer) {
 
     for (unsigned int i = 0; i < vitamines.size(); ++i) {
         if (vitamines[i]->getIdMedicament() == idMedicamentASupprimer){
-            delete vitamines[i];                     // Libérer la mémoire
-            vitamines.erase(vitamines.begin() + i); // Enlever du vecteur
+            delete vitamines[i];
+            vitamines.erase(vitamines.begin() + i);
             cout << "Vitamine supprime avec succes!" << endl;
 
             Vitamine::enregistrerVitaminesDansFichierDepuisTableau(vitamines);
@@ -601,6 +600,7 @@ static void supprimerVitamine(int idMedicamentASupprimer) {
 }
 };
 class Commande{
+    static int nbTotalCommandes;
     string codeCommande;
     int qteCommande;
     string dateCommande;
@@ -732,7 +732,7 @@ void lire_fichier(vector<Commande*>* commandes = nullptr) {
         Commande* cmd = new Commande();
         fi >> cmd;
         if (commandes) {
-            commandes->push_back(cmd); // ajouter au vecteur si fourni
+            commandes->push_back(cmd);
         } else {
             delete cmd;
     }}
@@ -798,7 +798,7 @@ static void supprimerCommande(const string& codeCommandeASupprimer) {
 
     for (unsigned int i = 0; i < commandes.size(); ++i) {
         if (commandes[i]->codeCommande == codeCommandeASupprimer) {
-            delete commandes[i];                   // Libérer la mémoire
+            delete commandes[i];
             commandes.erase(commandes.begin() + i);
             cout << "Commande supprimée avec succès!" << endl;
 
@@ -875,34 +875,43 @@ public:
     void ajouterCommande(const Commande& cmd) {
         commandes.push_back(cmd);
     }
-
+    void afficherClient() const {
+        cout << "Client : " << prenomClient << " " << nomClient << endl;
+        cout << "CIN : " << CINClient << ", Téléphone : " << numTel << ", Email : " << emailClient << endl;
+        cout << "--- Commandes ---" << endl;
+        for (const Commande& cmd : commandes) {
+            cout<<cmd;
+        }
+        cout << endl;
+    }
     Commande* trouverCommandeParCode(const string& code) {
-        auto it = std::find_if(commandes.begin(), commandes.end(),
+        auto it = find_if(commandes.begin(), commandes.end(),
             [&code](const Commande& cmd) {
                 return cmd.getCodeCommande() == code;
             });
         if (it != commandes.end()) {
-            return &(*it);  // Retourne un pointeur vers la commande trouvée
+            return &(*it);
         } else {
-            std::cout << "Commande avec le code " << code << " non trouvée." << std::endl;
+            cout << "Commande avec le code " << code << " non trouvée." << std::endl;
             return nullptr;
         }
     }
 
     bool supprimerCommandeParCode(const string& code) {
-        auto it = std::find_if(commandes.begin(), commandes.end(),
+        auto it = find_if(commandes.begin(), commandes.end(),
             [&code](const Commande& cmd) {
                 return cmd.getCodeCommande() == code;
             });
         if (it != commandes.end()) {
-            commandes.erase(it);  // Supprime la commande trouvée
-            std::cout << "Commande " << code << " supprimée avec succès." << std::endl;
+            commandes.erase(it);
+            cout << "Commande " << code << " supprimée avec succès." << endl;
             return true;
         } else {
-            std::cout << "Commande avec le code " << code << " non trouvée." << std::endl;
+            cout << "Commande avec le code " << code << " non trouvée." << endl;
             return false;
         }
     }
+
 };
 
 #endif // HEADERS_H_INCLUDED

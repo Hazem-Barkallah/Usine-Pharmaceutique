@@ -49,8 +49,6 @@ void menuMedicament() {
                 cin >> newPrix;
                 cout << "Entrer la nouvelle quantité en stock: ";
                 cin >> newQteStock;
-
-                // Option pour ajouter un pharmacien
                 char ajouterPharmacien;
                 cout << "Souhaitez-vous ajouter un pharmacien à ce medicament ? (o/n) ";
                 cin >> ajouterPharmacien;
@@ -195,19 +193,13 @@ void menuCommande() {
                 cin >> newDate;
                 cout << "Entrer la nouvelle quantité: ";
                 cin >> newQteCommande;
-
-                // Option pour ajouter un médicament
                 char ajouterMed;
                 cout << "Souhaitez-vous ajouter un médicament à cette commande ? (o/n) ";
                 cin >> ajouterMed;
                 Medicament* medToAdd = nullptr;
                 if (ajouterMed == 'o' || ajouterMed == 'O') {
-                    // Demander à l'utilisateur de saisir les informations du médicament
-                    // Exemple simple d'ajout de médicament
-                    // medToAdd = new Medicament("Nom", 10, 50.0, "01/01/2024");
                 }
 
-                // Option pour supprimer un médicament
                 char supprimerMed;
                 cout << "Souhaitez-vous supprimer un médicament de cette commande ? (o/n) ";
                 cin >> supprimerMed;
@@ -328,40 +320,58 @@ case 3: { menuVitamine();
                 cout << "Sous-choix invalide, veuillez réessayer." << endl;
                 break;
         }
-
         cout << endl;
     } while (sousChoixFichiers != 0);
 
     break;
 }
-
-            case 3:
+            case 3:{
                 cout << "Vous avez choisi Exception." << endl;
-                // Appeler ici une fonction qui traite des exceptions
-                break;
-            case 4: { // STL
+                try {
+        cout << "Création d'un médicament valide :" << endl;
+        Medicament m1(1,"Doliprane", 2.5,14,"01/11/2020");
+        cout<<m1;
+        cout << "\nCréation d'un médicament avec prix négatif :" << endl;
+        Medicament m2(2,"Aspirine", -3.0,14,"01/11/2020");
+        cout<<m2;
+
+    } catch (const invalid_argument& e) {
+        cout << "Exception attrapée : " << e.what() << endl;
+    }
+                break;}
+            case 4: {
     int choixSTL;
     do {
         cout << "--- Menu STL ---" << endl;
-        cout << "1 - Affichage" << endl;
-        cout << "2 - Ajouter" << endl;
-        cout << "3 - Algorithmes" << endl;
+        cout << "1 - Affichage du List" << endl;
+        cout << "2 - Affichage et algorithmes Map" << endl;
         cout << "0 - Retour" << endl;
         cout << "Votre choix : ";
         cin >> choixSTL;
 
         switch (choixSTL) {
-            case 1:
-                cout << "Affichage des structures STL..." << endl;
-                // fonction afficherSTL();
-                break;
-            case 2:
-                cout << "Ajout d'éléments dans les structures STL..." << endl;
-                // fonction ajouterSTL();
-                break;
+            case 1:{
+                cout << "Affichage List..." << endl;
+                Client c1("Doe", "John", "C123456", "0601020304", "john.doe@email.com");
+    c1.ajouterCommande(Commande("CMD001",10,"10/10/2025"));
+    c1.ajouterCommande(Commande("CMD002",20,"10/10/2025"));
+    c1.afficherClient();
+                break;}
+            case 2:{
+                cout << "Ajout et Algorithmes Map..." << endl;
+                MedicamentCombine med(1, "MédicamentCombine1", 10.5, 2, "2025-04-28", "Spectre1", true);
+    med.ajouterPrincipeActif("Paracétamol", "Antalgique et antipyrétique");
+    med.ajouterPrincipeActif("Ibuprofène", "Anti-inflammatoire non stéroïdien");
+    med.ajouterPrincipeActif("Aspirine", "Anti-inflammatoire et anticoagulant");
+    cout << "Affichage des principes actifs:" << endl;
+    med.afficherPrincipesActifs();
+    cout << "\nAffichage trié des principes actifs (par taille du nom):" << endl;
+    med.afficherParTailleNom();
+    cout << "\nRecherche par mot-clé (\"MultiVitamine\"):" << endl;
+    med.rechercherPrincipeActifParMotCle("MultiVitamine");
+                break;}
             case 3:
                 cout << "Utilisation des algorithmes STL..." << endl;
-                // fonction algorithmesSTL();
                 break;
             case 0:
                 cout << "Retour au menu précédent..." << endl;
@@ -373,10 +383,8 @@ case 3: { menuVitamine();
 
         cout << endl;
     } while (choixSTL != 0);
-
     break;
 }
-
             case 0:
                 cout << "Au revoir !" << endl;
                 break;
